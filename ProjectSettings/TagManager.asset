@@ -15,6 +15,7 @@ TagManager:
   - Chip
   - Cell
   - cellsParent
+  - turret
   layers:
   - Default
   - TransparentFX

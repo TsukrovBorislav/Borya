@@ -1,34 +1,53 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Raycaster : MonoBehaviour
 {
-    Vector3 clickPosition;
+    GameObject _click;
+
     void moveChip()
     {
+        Vector3 clickPosition = _click.transform.position;
         Point lastClick = new Point((int)clickPosition.x, (int)clickPosition.z);
         CurrentPlayer.MovementChip.Move(lastClick);
     }
+
     void buyObject()
     {
-        Vector3 place = new Vector3(clickPosition.x, 1, clickPosition.z);
+        Vector3 clickPosition = _click.transform.position;
+        clickPosition.y = 1;
+
+        Point p = new Point((int)clickPosition.x, (int)clickPosition.z);
 
         Player player = PlayersContainer.Players[CurrentPlayer.CurrentPlayerNumber];
-        Point p = new Point((int)place.x, (int)place.z);
 
         if (!player.CanBuyObject(CurrentPlayer.TypePurchasedObject, p))
-        {
             return;
-        }
-
+        //
         Field.DeleteCoin(p);
 
-        GameObject spawnedObject = ObjectSpawner.SpawnObject(CurrentPlayer.TypePurchasedObject, CurrentPlayer.PurchasedObject, place, Quaternion.identity);
+        ObjectSpawner.SpawnObject(CurrentPlayer.TypePurchasedObject, CurrentPlayer.PurchasedObject, clickPosition, Quaternion.identity);
 
         CurrentPlayer.OperatingMode = "expectation";
-        CurrentPlayer.TypePurchasedObject = null;
-        CurrentPlayer.PurchasedObject = null;
         CurrentPlayer.NextPlayer();
     }
+
+    void rocketAttack()
+    {
+        print(_click.tag);
+        if (_click.tag == "Chip" || _click.tag == "Cell" || _click.tag == "coins")
+            return;
+
+        Vector3 clickPosition = _click.transform.position;
+        Point p = new Point((int)clickPosition.x, (int)clickPosition.z);
+
+        MapObject.DeleteObject(p);
+        MonoBehaviour.Destroy(_click);
+
+        CurrentPlayer.OperatingMode = "expectation";
+        CurrentPlayer.NextPlayer();
+    }
+
     void OnClick()
     {
         switch (CurrentPlayer.OperatingMode)
@@ -41,6 +60,9 @@ public class Raycaster : MonoBehaviour
                 buyObject();
                 break;
 
+            case "rocket_attack":
+                rocketAttack();
+                break;
         }
     }
 
@@ -53,21 +75,9 @@ public class Raycaster : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, Mathf.Infinity))
             {
-                GameObject click = hit.collider.gameObject;
-
-                if ((CurrentPlayer.PurchasedObject != null & CurrentPlayer.TypePurchasedObject != null) || CurrentPlayer.MovementChip != null)
-                {
-                    if (click.transform.position != clickPosition)
-                    {
-                        if (click.tag == "Cell")
-                        {
-                            clickPosition = click.transform.position;
-                            OnClick();
-                        }
-                    }
-                }
+                _click = hit.collider.gameObject;
+                OnClick();
             }
         }
     }
-
 }

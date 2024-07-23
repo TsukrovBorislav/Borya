@@ -8,21 +8,12 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject _blockPrefab;
     [SerializeField] private GameObject _turretPrefab;
 
-    static Player player1;
-    static Player player2;
-
-    private void Start()
-    {
-        player1 = PlayersContainer.Players[0];
-        player2 = PlayersContainer.Players[1];
-
-    }
     public static void UpdateUI()
     {
         bool boolPlayerNumber = Convert.ToBoolean(CurrentPlayer.CurrentPlayerNumber);
 
-        StartGame.Money1.text = player1.CountCoins.ToString();
-        StartGame.Money2.text = player2.CountCoins.ToString();
+        StartGame.Money1.text = PlayersContainer.Players[0].CountCoins.ToString();
+        StartGame.Money2.text = PlayersContainer.Players[1].CountCoins.ToString();
         StartGame.BuildingPanel1.SetActive(boolPlayerNumber);
         StartGame.BuildingPanel2.SetActive(!boolPlayerNumber);
     }
@@ -55,6 +46,21 @@ public class UIManager : MonoBehaviour
     {
         Object block = new Block(CurrentPlayer.CurrentPlayerNumber);
         BuyButton(block, _blockPrefab);
-    } 
+    }
 
+    public void BuyRocketButton()
+    {
+        Player player = PlayersContainer.Players[CurrentPlayer.CurrentPlayerNumber];
+
+        if (player.CountCoins >= 0)
+        {
+            CurrentPlayer.OperatingMode = "rocket_attack";
+            print("bought!");
+        } 
+        else
+        {
+            CurrentPlayer.OperatingMode = "expectation";
+            print("insufficient money");
+        }
+    }
 }

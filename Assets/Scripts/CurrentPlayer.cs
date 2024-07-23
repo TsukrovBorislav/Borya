@@ -7,11 +7,16 @@ public static class CurrentPlayer
 
     //==========================================================================
     public static string OperatingMode { get; set; } = "expectation";
+
     // "movement_chip"
     public static Movement MovementChip { get; set; } = null;
+
     // "buy_object"
     public static GameObject PurchasedObject { get; set; } = null;
     public static Object TypePurchasedObject { get; set; } = null;
+
+    // "rocket_attack"
+
     //==========================================================================
 
 
